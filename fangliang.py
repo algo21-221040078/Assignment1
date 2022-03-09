@@ -15,9 +15,6 @@ def get_fangliang(data, N, M=60):
     Function
         计算 放量程度指标 
         #放量程度指标 = (当日成交额对数 − 近𝑁日成交额对数均值)⁄近𝑁日成交额对数标准差
-        #提纯放量程度（剥离前一日涨跌幅影响）：
-            1. 滚动窗口回归，将最近一段时间的当日放量程度指标序列(y)对前一日涨跌幅序列(x)回归；
-            2. 取回归模型在当日的残差数据，作为剥离掉前一日涨跌幅影响后的放量程度指标。
     Parameters
         data     [dataframe]  数据（字段['date','amount']）
     Return
@@ -27,19 +24,6 @@ def get_fangliang(data, N, M=60):
     data.loc[:,'mean_lnamount'] = np.log(data.loc[:,'amount']).rolling(window=N).mean()
     data.loc[:,'std_lnamount'] = np.log(data.loc[:,'amount']).rolling(window=N).std()
     data.loc[:,'fangliang'] = (np.log(data.loc[:,'amount']) - data.loc[:,'mean_lnamount']) /data.loc[:,'std_lnamount']
-    # data['last_dRet'] = get_open_ret(data[['date_time','open']]).shift(1)
-    # data = data.dropna()
-    #fangliang_2 = ols.PandasRollingOLS( y=data.loc[:,'last_dRet'],x=data.loc[:,'fangliang'], window=M).resids
-    # data.index = (range(data.shape[0]))
-    # data['flag'] = data.index // M
-    
-    # fangliang_2 = data.groupby('flag').apply(lambda x:sm.OLS(x['fangliang_1'], sm.add_constant(x['last_dRet'])).fit().resid)
-    # fangliang_2.name = 'fangliang_2'
-    # fangliang_2 = fangliang_2.reset_index()
-    # print(fangliang_2) # fangliang_2 为空
-    
-    # data = pd.merge(data, fangliang_2['fangliang_2'], left_index=True,right_index=True)
-    # data['fangliang'] = 1/2 * np.add(data['fangliang_1'], data['fangliang_2'])
     return data
 
 # 以成交额为标准 为指数成交额排序
