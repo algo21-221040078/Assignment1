@@ -210,6 +210,27 @@ def get_open_ret(value_data, pricename='open'):
                     ((value_data['day_rank'])/244))
     return value_data['ret']
 
+# 绘制买卖信号图
+def draw_trade_sig(sig_data, result_path=None, startdt=0, enddt=20400000):
+    '''
+    Parameters
+        - sig_data        [dataframe]    原始数据（字段['date_time','date','open','sig'])
+        - result_path     [str]          图片存储路径
+        - startdt, enddt  [int]          时间区间的始末
+    '''
+    data = sig_data[ (sig_data.date>=int(startdt)) & (sig_data.date<=int(enddt)) ]
+    data.set_index(['date_time'], inplace=True)
+    buy_idx = list(data[ data.sig==1 ].index)
+    sell_idx = list(data[ data.sig==-1 ].index)
+    plt.figure(figsize=(16, 8))
+    plt.plot(data['open'],label="open price",color='k',linewidth=1)
+    plt.plot(data['open'][buy_idx],'^',color='red',label="buy", markersize=8)
+    plt.plot(data['open'][sell_idx],'gv',label="sell", markersize=8)
+    plt.legend(loc=1)
+    plt.show()
+    # plt.savefig(result_path+"trading_sig.png")
+    plt.close()
+
 
 
 if __name__ == '__main__':    
@@ -240,4 +261,4 @@ if __name__ == '__main__':
     print(data_factor.describe())#['factor'].value_counts())
     
     data_sig = get_trading_sig(data_factor,s)
-    
+    draw_trade_sig(data_sig)
